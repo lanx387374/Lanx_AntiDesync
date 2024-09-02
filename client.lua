@@ -6,18 +6,21 @@ function detectHeadshot()
     if IsPedAiming(playerPed) or IsPedShooting(playerPed) then
         local isAiming, hitEntity, hitCoords = GetEntityPlayerIsFreeAimingAt(playerPed)
 
-        if isAiming and hitEntity then
-            if IsPedAPlayer(hitEntity) then
-                local boneIndex = GetPedBoneIndex(hitEntity, 31086)
-                local headPosition = GetWorldPositionOfEntityBone(hitEntity, boneIndex)
+        if isAiming and hitEntity and IsPedAPlayer(hitEntity) then
+            local boneIndex = GetPedBoneIndex(hitEntity, 31086) 
+            local headPosition = GetWorldPositionOfEntityBone(hitEntity, boneIndex)
 
-                if Vdist(hitCoords.x, hitCoords.y, hitCoords.z, headPosition.x, headPosition.y, headPosition.z) < 0.5 then
-                    local playerId = GetPlayerServerId(NetworkGetPlayerIndexFromPed(hitEntity))
-                    TriggerServerEvent('headshot:applyDamage', playerId)
-                end
+            if IsPointInPolygon(hitCoords, headPosition) then
+                local playerId = GetPlayerServerId(NetworkGetPlayerIndexFromPed(hitEntity))
+                TriggerServerEvent('headshot:applyDamage', playerId)
             end
         end
     end
+end
+
+function IsPointInPolygon(point, polygon)
+    local distance = Vdist(point.x, point.y, point.z, polygon.x, polygon.y, polygon.z)
+    return distance < 0.2 
 end
 
 Citizen.CreateThread(function()
