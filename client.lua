@@ -1,16 +1,20 @@
+local checkInterval = 1000 
+
 function detectHeadshot()
     local playerPed = PlayerPedId()
-    local hit, hitEntity, hitCoords, hitNormal, hitDamage = GetEntityPlayerIsFreeAimingAt(playerPed)
 
-    if hit and hitEntity then
-        if IsPedAPlayer(hitEntity) then
-            local boneIndex = GetPedBoneIndex(hitEntity, 31086) -- Head bone index
+    if IsPedAiming(playerPed) or IsPedShooting(playerPed) then
+        local isAiming, hitEntity, hitCoords = GetEntityPlayerIsFreeAimingAt(playerPed)
 
-            local hitCoord = GetPedBoneCoords(hitEntity, boneIndex)
+        if isAiming and hitEntity then
+            if IsPedAPlayer(hitEntity) then
+                local boneIndex = GetPedBoneIndex(hitEntity, 31086)
+                local headPosition = GetWorldPositionOfEntityBone(hitEntity, boneIndex)
 
-            if Vdist(hitCoords.x, hitCoords.y, hitCoords.z, hitCoord.x, hitCoord.y, hitCoord.z) < 0.5 then
-                local playerId = GetPlayerServerId(NetworkGetPlayerIndexFromPed(hitEntity))
-                TriggerServerEvent('headshot:applyDamage', playerId)
+                if Vdist(hitCoords.x, hitCoords.y, hitCoords.z, headPosition.x, headPosition.y, headPosition.z) < 0.5 then
+                    local playerId = GetPlayerServerId(NetworkGetPlayerIndexFromPed(hitEntity))
+                    TriggerServerEvent('headshot:applyDamage', playerId)
+                end
             end
         end
     end
@@ -18,7 +22,7 @@ end
 
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(500)
+        Citizen.Wait(checkInterval) 
         detectHeadshot()
     end
 end)
