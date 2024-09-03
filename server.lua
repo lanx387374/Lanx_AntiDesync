@@ -12,8 +12,20 @@ AddEventHandler('headshot:applyDamage', function(playerId)
 
             if newHealth <= 0 then
                 SetEntityHealth(ped, 0)
-               -- you can change the notify here :)
+                
+                -- Notify the player
                 TriggerClientEvent('esx:showNotification', playerId, 'تم قتل اللاعب بسبب تلقيه إصابة في الرأس!')
+
+                -- Discord logging
+                local playerName = GetPlayerName(GetPlayerFromServerId(playerId))
+                local webhookUrl = 'YOUR_DISCORD_WEBHOOK_URL'
+                local message = {
+                    ["username"] = "Headshot Logger",
+                    ["content"] = "**" .. playerName .. "** تم قتله بسبب إصابة في الرأس!"
+                }
+                
+                PerformHttpRequest(webhookUrl, function(err, text, headers) 
+                end, 'POST', json.encode(message), { ['Content-Type'] = 'application/json' })
             end
         end
     end
