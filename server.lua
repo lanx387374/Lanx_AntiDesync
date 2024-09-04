@@ -19,22 +19,25 @@ AddEventHandler('headshot:applyDamage', function(playerId)
                 local newHealth = math.max(health - headshotDamage, 0)
                 SetEntityHealth(ped, newHealth)
 
-            if newHealth <= 0 then
-                SetEntityHealth(ped, 0)
-                
-                -- Notify the player
-                TriggerClientEvent('esx:showNotification', playerId, 'تم قتل اللاعب بسبب تلقيه إصابة في الرأس!')
+                if newHealth <= 0 then
+                    SetEntityHealth(ped, 0)
+                    
+-- notify
+                    TriggerClientEvent('esx:showNotification', playerId, 'تم قتل اللاعب بسبب تلقيه إصابة في الرأس!')
 
-                -- Discord logging
-                local playerName = GetPlayerName(GetPlayerFromServerId(playerId))
-                local webhookUrl = 'YOUR_DISCORD_WEBHOOK_URL'
-                local message = {
-                    ["username"] = "Headshot Logger",
-                    ["content"] = "**" .. playerName .. "** تم قتله بسبب إصابة في الرأس!"
-                }
-                
-                PerformHttpRequest(webhookUrl, function(err, text, headers) 
-                end, 'POST', json.encode(message), { ['Content-Type'] = 'application/json' })
+                    local playerName = GetPlayerName(GetPlayerFromServerId(playerId))
+                    local webhookUrl = 'ur_webhook_goes_here'
+                    local message = {
+                        ["username"] = "Headshot Logger",
+                        ["content"] = "**" .. playerName .. "** تم قتله بسبب إصابة في الرأس!"
+                    }
+                    
+                    PerformHttpRequest(webhookUrl, function(err, text, headers) 
+                    end, 'POST', json.encode(message), { ['Content-Type'] = 'application/json' })
+                end
+            else
+--notify if the distance is far
+                TriggerClientEvent('esx:showNotification', src, 'المسافة بعيدة جدًا لتنفيذ هجوم.')
             end
         end
     end
